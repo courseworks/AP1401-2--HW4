@@ -391,5 +391,12 @@ private:
 
 <center>
     <img src="resorces/../resources/Aspose.Words.5beb3cff-3782-42d9-88c8-ba0a913d156f.006.png" />
-<center/>
+</center>
 
+#
+- All of your cpp files and dfolders should be in the cpp folder and the front-end files should be in the front folder.
+- Send assignments to my email address before the deadline.
+- After the deadline, the assignment will push to the repository. in the students number folder. (example: 12345678)
+- create a pull request to the repository.
+
+<h2 align="center"> Good Luck </h2>
