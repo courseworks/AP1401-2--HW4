@@ -1,4 +1,245 @@
-﻿# 2 درﺑﺎره ﺟﻨﮓ ﺳﺘﺎرﮔﺎن
+﻿# 1. cpp
+The purpose of this homework is to design a banking system. There are two `.h` files, one for **account** information and one for **banking system**.
+
+## account.h
+The first class is `Account`; It has a member variable called `balance` to store the balance of the account, and two functions called deposit, withdraw, and get_balance using the following API:
+- `balance`: The current amount of money in the account.
+- `withdraw`: Take money out of your account, either by cash or transferring.
+- `deposit`: Put money into your account.
+- Add a vector of transactions to keep track of the account's history.
+- Implement a member function to add a transaction to this vector.
+- Some functions should be constant.
+- Some functions should be virtual.
+- Arguments should be optimized (using const reference (&) instead of copying).
+- The move constructor moves the balance value of the object into the new
+- object being constructed, and sets the balance value of the other object to zero, and also avoids the need to allocate new memory for the balance value when copying Account objects.
+- Add a destructor to free any dynamically allocated memory, if any.
+
+**Question:** Why should ~Account() be virtual?
+
+```cpp
+class Account {
+public:
+    Account(double balance = 0);
+    ~Account();
+    Account(const Account&);
+    Account(Account&&);
+    Account& operator=(const Account&);
+    Account& operator=(Account&&);
+
+    void deposit(double amount);
+    bool withdraw(double amount);
+    double get_balance();
+
+    std::vector<Transaction> transactions_;
+
+private:
+    double balance_;
+};
+```
+## SavingAccount
+The next class is SavingAccount class that inherits from the Account class. Saving
+accounts has an interest rate and the interest should be added to the main
+balance. It has a member variable `interestRate` to store the rate,
+`withdrawCounts` to limit the number of withdraws from the account per month,
+and add_interest to add the interest to the balance.
+- This class inherits from the Account class and some functions should
+override previous functions.
+- Saving Account: This type of account has an interest rate (for example 1%
+per year).
+- withdraw counts: The account holder may withdraw money 3 times from
+the account per month.
+- withdraw: It’s a little different from Account’s withdraw. If the user tries to
+withdraw more than 3 times, it should throw an error. Should also log
+transactions.
+- add interest: To change the interest rate.
+- Some functions should be virtual.
+- Arguments should be optimized (using const reference (&) instead of
+copying).
+- Add a destructor to free any dynamically allocated memory, if any.
+
+```cpp
+
+class SavingsAccount {
+public:
+    SavingsAccount(double balance = 0, double interest_rate = 0.01);
+    ~SavingsAccount();
+    SavingsAccount(const SavingsAccount&);
+    SavingsAccount(SavingsAccount&&);
+    SavingsAccount& operator=(const SavingsAccount&);
+    SavingsAccount& operator=(SavingsAccount&&);
+    void addInterest();
+    bool withdraw(double amount);
+
+private:
+    double interestRate;
+    size_t withdrawCounts;
+};
+```
+
+## CheckingAccount
+The next class is the CheckingAccount class that mimics a normal account used for
+day-to-day payments. It has a fee variable that every time the account holder
+withdraws money, it deducts a little bit more from the balance for the bank fee.
+
+- This class inherits from the Account class and some functions should override previous functions.
+- `CheckingAccount`: The account you use for daily basis.
+- `withdraw`: It’s a little different from Account’s withdraw. It also deducts
+money per transaction (withdraw/deposit). Transactions should be logged.
+- Deduct fee:
+- Some functions should be virtual.
+- Arguments should be optimized (using const reference (&) instead of
+copying).
+- Add a destructor to free any dynamically allocated memory, if any.
+```cpp
+class CheckingAccount {
+public:
+    CheckingAccount(double balance = 0, double fee = 1);
+    ~CheckingAccount();
+    CheckingAccount(const CheckingAccount&);
+    CheckingAccount(CheckingAccount&&);
+    CheckingAccount& operator=(const CheckingAccount&);
+    CheckingAccount& operator=(CheckingAccount&&);
+    bool withdraw(double amount);
+private:
+    double fee;
+};
+```
+**Question**: Can you make the withdraw function of CheckingAccount const?
+
+## CreditAccount
+The next class is `CreditAccount` to create a credit account. Credit account allows the account holder to withdraw money more than the current balance, but has to pay back by the end of the month.
+- This class inherits from the `Account` class and some functions should override previous functions.
+- `CreditAccount`: The account holder can take more than the account’s balance, but has to pay back later.
+- `withdraw`: It’s a little different from Account’s withdraw. It may also allow
+the account holder to withdraw more money. For example if the balance is 1000 and the maximum credit (credit_limit) is 500, the account holder may withdraw up to 1500 but the debt will be 500 (should pay back 500 to the bank later). The credit limit should be updated (like if they use 200 out of 500, the credit limit should be 300 until they pay back)
+- `payDebt`: If the debt is zero and the account holder tries to pay back, it should throw an error. If the debt is not zero, it should reset debt to 0 and credit back to the first value (for example 500).
+- Some functions should be virtual.
+- Some functions should be const.
+- Arguments should be optimized (using const reference (&) instead of copying).
+- Add a destructor to free any dynamically allocated memory, if any.
+
+```cpp
+class CreditAccount {
+public:
+    CreditAccount(double balance = 0, double credit_limit = 500);
+    ~CreditAccount();
+    CreditAccount(const CreditAccount& other);
+    CreditAccount(CreditAccount&& other);
+    bool withdraw(double amount);
+    double getCreditLimit();
+    double getInterestRate();
+    double getDebt();
+    void payDebt();
+
+private:
+    double creditLimit;
+    double debt;
+};
+```
+
+## Transaction
+
+The `Transaction` class logs the history of transactions. It saves the amount of money transferred between two accounts:
+
+```cpp
+class Transaction {
+public:
+    Transaction(const std::string& from, const std::string& to, double amount, const std::string& currency);
+
+    std::string getFrom();
+    std::string getTo();
+    double getAmount();
+    std::string getCurrency();
+
+private:
+    std::string from;
+    std::string to;
+    double amount;
+    std::string currency;
+};
+```
+- Some functions should be const.
+
+## Currency
+
+Currency class includes multiple currencies (USD, EUR, GBP, etc.) and the exchange rate.
+
+- `Currency` is the type of money used, like US Dollar, Euro, etc.
+- `echangeRate`: The rate to convert another currency to US Dollar.
+- `name`: The name of the currency.
+- Some functions can be const.
+```cpp
+class Currency {
+public:
+    Currency(const std::string& name, double exchange_rate);
+    ~Currency();
+    std::string getName();
+    double getExchangeRate();
+
+private:
+    std::string name;
+    double exchangeRate;
+};
+```
+## Customer
+Now we need declare the `Customer` class, we want this class to have a series of functions like password authentication, add_acount which creates a new saving/credit/banking type accounts based on the currency specified. Use unordered maps to link the currencies to each account like the code provided below.
+
+- `Customer`: Saves customer’s information like username, password, and linked accounts.
+- `authenticate`: Validates if the password is correct.
+- `addAccount`: To create or link an account (Saving, Checking, Credit) to the customer.
+- `getAccounts`: Returns the accounts linked to that customer
+- Some functions should be const.
+```cpp
+class Customer {
+public:
+    Customer(const std::string& name, const std::string& password);
+    Customer(const Customer& other);
+    Customer(Customer&& other);
+    Customer& operator=(const Customer& other);
+    Customer& operator=(Customer&& other);
+    ~Customer();
+    bool authenticate(const std::string& password);
+    void addAccount(Account* account, const Currency& currency);
+    std::vector<Account*>& getAccounts(const Currency& currency);
+
+private:
+    std::string name;
+    std::string password;
+
+    std::unordered_map<const Currency*, std::vector<Account*>> accounts;
+};
+```
+## BankingSystem
+Last but not least, we need to implement the `BankingSystem`.
+Push back each currency value similar to the code provided.
+Have other functions like `addCustomers` which saves each account into the customers list as a pointer.
+Have a transfer function to transfer money between accounts and account for currency changes.
+Implement another function for converting currencies.
+
+```cpp
+class BankingSystem {
+public:
+    BankingSystem();
+    ~BankingSystem();
+    BankingSystem(const BankingSystem& other);
+    BankingSystem(BankingSystem&& other);
+    BankingSystem& operator=(const BankingSystem& other);
+    BankingSystem& operator=(BankingSystem&& other);
+    void addCustomer(Customer* customer);
+    bool transfer(Customer* sender, Account* sender_account,
+                  Customer* receiver, Account* receiver_account,
+                  double amount, const Currency& currency);
+    double convert(double amount, const Currency& from_currency,
+                   const Currency& to_currency) const;
+
+private:
+    std::vector<Customer*> customers_;
+    std::vector<Currency> currencies_;
+};
+```
+
+# 2. درﺑﺎره ﺟﻨﮓ ﺳﺘﺎرﮔﺎن
 
 ## ۲. ۱ ﻣﻘﺪﻣﻪ
 
